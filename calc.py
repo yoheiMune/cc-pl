@@ -8,7 +8,7 @@ from pprint import pprint
 from decimal import Decimal, getcontext
 import requests
 
-# 有効桁数は少数第1位
+# 有効桁数は少数第8位
 getcontext().prec = 8
 
 def load_csv(path):
