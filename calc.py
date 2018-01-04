@@ -17,9 +17,11 @@
   Output:
     1. 取引履歴一覧とProfit/Loss
     ---
-    order         ,currency,type     ,date        ,amount      ,price      ,profit
-    trade         ,BTC ,buy      ,2017-08-31  ,0.1         ,510000     ,
-    buy           ,XEM ,buy      ,2017-09-01  ,100.0       ,38         ,
+    order         ,currency ,type     ,date        ,amount      ,price      ,profit
+    trade         ,BTC      ,buy      ,2017-08-31  ,0.1         ,510000     ,
+    buy           ,XEM      ,buy      ,2017-09-01  ,100.0       ,38         ,
+    trade         ,BTC      ,buy      ,2017-09-01  ,0.105       ,510804     ,
+    trade         ,BTC      ,sell     ,2017-09-01  ,0.095       ,510804     ,191
     ...
 
     2. 期末残高
@@ -46,11 +48,11 @@ def load_csv(path):
     return [row for row in reader]
 
 def load_activities():
-  return (load_csv(os.path.join(Path.home(), "Downloads/orders.csv")),
-    load_csv(os.path.join(Path.home(), "Downloads/buys.csv")),
-    load_csv(os.path.join(Path.home(), "Downloads/sells.csv")),
-    load_csv(os.path.join(Path.home(), "Downloads/sends.csv")),
-    load_csv(os.path.join(Path.home(), "Downloads/deposits.csv")))
+  return (load_csv(os.path.join(Path.home(), "Downloads", "orders.csv")),
+    load_csv(os.path.join(Path.home(), "Downloads", "buys.csv")),
+    load_csv(os.path.join(Path.home(), "Downloads", "sells.csv")),
+    load_csv(os.path.join(Path.home(), "Downloads", "sends.csv")),
+    load_csv(os.path.join(Path.home(), "Downloads", "deposits.csv")))
 
 def get_trades(orders, buys, sells, sends, deposits):
   """日付の降順でトレード内容を返却する."""
