@@ -1,5 +1,34 @@
 """
   Coincheckにおける損益計算を行うツール.
+
+  Input:
+    1. 取引履歴：~Downloads/orders.csv
+      https://coincheck.com/ja/exchange/my_complete_orders?pair=btc_jpy
+    2. 購入履歴：~Downloads/buys.csv
+      https://coincheck.com/ja/buys
+    3. 売却履歴：~Downloads/sells.csv
+      https://coincheck.com/ja/sells
+    4. 送信履歴：~Downloads/sends.csv
+      https://coincheck.com/ja/send
+    5. 受信履歴：~Downloads/deposits.csv
+      https://coincheck.com/ja/deposit_bitcoin
+    6. その他： 92行目付近（2段階認証の報酬など）
+
+  Output:
+    1. 取引履歴一覧とProfit/Loss
+    ---
+    order         ,currency,type     ,date        ,amount      ,price      ,profit
+    trade         ,BTC ,buy      ,2017-08-31  ,0.1         ,510000     ,
+    buy           ,XEM ,buy      ,2017-09-01  ,100.0       ,38         ,
+    ...
+
+    2. 期末残高
+    ---
+    BTC ,99.999     ,1416415.3
+    XEM ,1234.0     ,50.918794
+    XRP ,5678.0     ,28.789344
+    ...
+
 """
 import os
 from pathlib import Path
