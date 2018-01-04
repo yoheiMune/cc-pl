@@ -43,7 +43,7 @@ getcontext().prec = 8
 def load_csv(path):
   with open(path, newline="") as f:
     reader = csv.DictReader(f, delimiter=",")
-    return sorted([row for row in reader], key=lambda d:d.get("Date", d.get("Time")))
+    return [row for row in reader]
 
 def load_activities():
   return (load_csv(os.path.join(Path.home(), "Downloads/orders.csv")),
