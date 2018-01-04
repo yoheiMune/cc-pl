@@ -109,8 +109,8 @@ def main():
   table = {}
   for trade in get_trades(orders, buys, sells, sends, deposits):
     dt = trade["Date"].split(" ")[0]
-    # if dt >= "2018-01-01":
-    #   continue
+    if dt >= "2018-01-01":
+      continue
     # 購入
     if trade["Type"] == "buy":
       amount, price = table.get(trade["Trading Currency"], (0, 0))
