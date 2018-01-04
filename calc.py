@@ -2,15 +2,15 @@
   Coincheckにおける損益計算を行うツール.
 
   Input:
-    1. 取引履歴：~Downloads/orders.csv
+    1. 取引履歴：~/Downloads/orders.csv
       https://coincheck.com/ja/exchange/my_complete_orders?pair=btc_jpy
-    2. 購入履歴：~Downloads/buys.csv
+    2. 購入履歴：~/Downloads/buys.csv
       https://coincheck.com/ja/buys
-    3. 売却履歴：~Downloads/sells.csv
+    3. 売却履歴：~/Downloads/sells.csv
       https://coincheck.com/ja/sells
-    4. 送信履歴：~Downloads/sends.csv
+    4. 送信履歴：~/Downloads/sends.csv
       https://coincheck.com/ja/send
-    5. 受信履歴：~Downloads/deposits.csv
+    5. 受信履歴：~/Downloads/deposits.csv
       https://coincheck.com/ja/deposit_bitcoin
     6. その他： 92行目付近（2段階認証の報酬など）
 
