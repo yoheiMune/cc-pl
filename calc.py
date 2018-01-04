@@ -28,64 +28,64 @@ def get_trades(orders, buys, sells, sends, deposits):
   items = []
   for trade in orders:
     items.append({
-      "Order" : "trade",
-      "Date"  : trade["Date"],
-      "Type"  : trade["Type"],
-      "Amount": trade["BTC"],
-      "Rate"  : trade["Rate"],
-      "Price" : Decimal(trade["JPY"]),
-      "Trading Currency" : "BTC",
+      "Order"             : "trade",
+      "Date"              : trade["Date"],
+      "Type"              : trade["Type"],
+      "Amount"            : Decimal(trade["BTC"]),
+      "Rate"              : Decimal(trade["Rate"]),
+      "Price"             : Decimal(trade["JPY"]),
+      "Trading Currency"  : "BTC",
       "Original Currency" : "JPY"
     })
   for buy in buys:
     if buy["Progress"] == "completed":
       items.append({
-        "Order" : "buy",
-        "Date"  : buy["Time"],
-        "Type"  : "buy" if buy["Original Currency"] == "JPY" else "exchange",
-        "Amount": buy["Amount"],
-        "Rate"  : Decimal(buy["Price"]) / Decimal(buy["Amount"]),
-        "Price" : Decimal(buy["Price"]),
+        "Order"            : "buy",
+        "Date"             : buy["Time"],
+        "Type"             : "buy" if buy["Original Currency"] == "JPY" else "exchange",
+        "Amount"           : Decimal(buy["Amount"]),
+        "Rate"             : Decimal(buy["Price"]) / Decimal(buy["Amount"]),
+        "Price"            : Decimal(buy["Price"]),
         "Trading Currency" : buy["Trading Currency"],
         "Original Currency": buy["Original Currency"]
       })
   for sell in sells:
     if sell["Progress"] == "completed":
       items.append({
-        "Order" : "sell",
-        "Date"  : sell["Time"],
-        "Type"  : "sell" if buy["Original Currency"] == "JPY" else "exchange",
-        "Amount": Decimal(sell["Amount"]) * -1,
-        "Rate"  : Decimal(buy["Price"]) / Decimal(buy["Amount"]),
-        "Price" : Decimal(sell["Price"]),
+        "Order"            : "sell",
+        "Date"             : sell["Time"],
+        "Type"             : "sell" if buy["Original Currency"] == "JPY" else "exchange",
+        "Amount"           : Decimal(sell["Amount"]) * -1,
+        "Rate"             : Decimal(sell["Price"]) / Decimal(sell["Amount"]),
+        "Price"            : Decimal(sell["Price"]),
         "Trading Currency" : sell["Trading Currency"],
         "Original Currency": sell["Original Currency"]
       })
   for send in sends:
     if send["Status"] == "confirmed":
       items.append({
-        "Order" : "send",
-        "Date"  : send["Date"],
-        "Type"  : "send",
-        "Amount": Decimal(send["Amount"]) * -1,
-        "Fee"   : send["Fee"],
+        "Order"            : "send",
+        "Date"             : send["Date"],
+        "Type"             : "send",
+        "Amount"           : Decimal(send["Amount"]) * -1,
+        "Fee"              : Decimal(send["Fee"]),
         "Trading Currency" : send["Currency"],
       })
   for deposit in deposits:
     if deposit["Status"] == "confirmed":
       items.append({
-        "Order" : "deposit",
-        "Date"  : deposit["Date"],
-        "Type"  : "deposit",
-        "Amount": Decimal(deposit["Amount"]),
+        "Order"            : "deposit",
+        "Date"             : deposit["Date"],
+        "Type"             : "deposit",
+        "Amount"           : Decimal(deposit["Amount"]),
         "Trading Currency" : deposit["Currency"],
       })
   # 2段階認証の報酬をdepositで処理.
   items.append({
-    "Order" : "deposit",
-    "Date"  : "2017-09-05",
-    "Type"  : "deposit",
-    "Amount": Decimal(0.0003),
+    "Order"            : "deposit",
+    "Date"             : "2017-09-05",
+    "Type"             : "deposit",
+    "Amount"           : Decimal(0.0003),
     "Trading Currency" : "BTC",
   })
   return sorted(items, key=lambda d:d["Date"])
@@ -109,15 +109,16 @@ def main():
   table = {}
   for trade in get_trades(orders, buys, sells, sends, deposits):
     dt = trade["Date"].split(" ")[0]
+    # 対象は2017-12-31まで.
     if dt >= "2018-01-01":
       continue
     # 購入
     if trade["Type"] == "buy":
       amount, price = table.get(trade["Trading Currency"], (0, 0))
       # 加重平均の価格
-      price = (price * amount + Decimal(trade["Rate"]) * Decimal(trade["Amount"])) / (amount + Decimal(trade["Amount"]))
+      price = (price * amount + trade["Rate"] * Decimal(trade["Amount"])) / (amount + trade["Amount"])
       # 数量
-      amount += Decimal(trade["Amount"])
+      amount += trade["Amount"]
       # 保存
       table[trade["Trading Currency"]] = (amount, price)
       # 出力
@@ -125,8 +126,8 @@ def main():
     # 売却
     elif trade["Type"] == "sell":
       amount, price = table.get(trade["Trading Currency"], (0, 0))
-      amount += Decimal(trade["Amount"])
-      profit = (Decimal(trade["Rate"]) - price) * Decimal(trade["Amount"]) * -1
+      amount += trade["Amount"]
+      profit = (trade["Rate"] - price) * trade["Amount"] * -1
       # 保存
       table[trade["Trading Currency"]] = (amount, price)
       # 出力
@@ -136,7 +137,7 @@ def main():
       # pprint(trade)
       # 交換元は売却として処理.
       buy_price = get_price(dt, trade["Original Currency"])
-      buy_amount = Decimal(trade["Price"]) * -1
+      buy_amount = trade["Price"] * -1
       amount, price = table.get(trade["Original Currency"], (0, 0))
       amount += buy_amount
       profit = (buy_price - price) * buy_amount * -1
@@ -147,11 +148,11 @@ def main():
       # 交換先は購入として処理.
       amount, price = table.get(trade["Trading Currency"], (0, 0))
       # 加重平均の価格
-      buy_rate = buy_price * buy_amount * -1 / Decimal(trade["Amount"])
+      buy_rate = buy_price * buy_amount * -1 / trade["Amount"]
       # print("buy_rate:", buy_rate, buy_price, buy_amount)
-      price = (price * amount + buy_rate) * Decimal(trade["Amount"]) / (amount + Decimal(trade["Amount"]))
+      price = (price * amount + buy_rate) * trade["Amount"] / (amount + trade["Amount"])
       # 数量
-      amount += Decimal(trade["Amount"])
+      amount += trade["Amount"]
       # 保存
       table[trade["Trading Currency"]] = (amount, price)
       # 出力
@@ -159,11 +160,11 @@ def main():
     # 送信
     elif trade["Type"] == "send":
       amount, price = table.get(trade["Trading Currency"], (0, 0))
-      amount += Decimal(trade["Amount"])
-      amount -= Decimal(trade["Fee"])
+      amount += trade["Amount"]
+      amount -= trade["Fee"]
       table[trade["Trading Currency"]] = (amount, price)
       rate = get_price(dt, trade["Trading Currency"])
-      profit = Decimal(trade["Fee"]) * rate * -1
+      profit = trade["Fee"] * rate * -1
       # 出力
       print("{:14},{:4},{:9},{:<12},{:<12},{:<11},{}".format(trade["Order"], trade["Trading Currency"], 'send', dt, amount, int(price), int(profit)))
     # 受け取り
@@ -171,10 +172,10 @@ def main():
       amount, price = table.get(trade["Trading Currency"], (0, 0))
       rate = get_price(dt, trade["Trading Currency"])
       # 加重平均の価格
-      price = (price * amount + rate * Decimal(trade["Amount"])) / (amount + Decimal(trade["Amount"]))
+      price = (price * amount + rate * trade["Amount"]) / (amount + trade["Amount"])
       # 数量
-      amount += Decimal(trade["Amount"])
-      profit = rate * Decimal(trade["Amount"])
+      amount += trade["Amount"]
+      profit = rate * trade["Amount"]
       # 保存
       table[trade["Trading Currency"]] = (amount, price)
       # 出力
