@@ -33,6 +33,7 @@
 
 """
 import os
+from datetime import datetime, timedelta
 from pathlib import Path
 import csv
 from pprint import pprint
@@ -121,12 +122,15 @@ def get_trades(orders, buys, sells, sends, deposits):
   })
   return sorted(items, key=lambda d:d["Date"])
 
+api_cache = {}
+
 def get_price(dt, currency):
-  # TODO 取得結果はキャッシュしてもいいかな.
-  year, month, _ = dt.split("-")
-  url = "https://coincheck.com/exchange/closing_prices/list?month={}&year={}".format(int(month), int(year))
-  result = requests.get(url).json()
-  price = Decimal(result["closing_prices"][dt][currency.lower()][1])
+  if dt not in api_cache:
+    year, month, _ = dt.split("-")
+    url = "https://coincheck.com/exchange/closing_prices/list?month={}&year={}".format(int(month), int(year))
+    result = requests.get(url).json()
+    api_cache[dt] = result
+  price = Decimal(api_cache[dt]["closing_prices"][dt][currency.lower()][1])
   # print("price:", dt, currency, price)
   return price
 
@@ -214,9 +218,12 @@ def main():
 
   # 期末残高
   print("\n----------------------------")
-  print("期末残高")
+  print("期末残高\n---")
+  yesterday = (datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d")
+  print("{:4},{:<12},{:<12},{:<12}".format("", "Amount", "Rate", "Value"))
   for currency, item in table.items():
-    print("{:4},{:<12},{:<12}".format(currency, item[0], item[1]))
+    value = int(get_price(yesterday, currency) * item[0])
+    print("{:4},{:<12},{:<12},{:<12}".format(currency, item[0], item[1], value))
 
 
 if __name__ == "__main__":
